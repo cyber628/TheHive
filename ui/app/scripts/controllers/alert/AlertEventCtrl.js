@@ -1,7 +1,7 @@
 (function() {
     'use strict';
     angular.module('theHiveControllers')
-        .controller('AlertEventCtrl', function($scope, $rootScope, $state, $uibModal, $uibModalInstance, ModalUtilsSrv, CustomFieldsCacheSrv, CaseResolutionStatus, AlertingSrv, NotificationSrv, UiSettingsSrv, clipboard, event, templates, isAdmin, readonly) {
+        .controller('AlertEventCtrl', function($scope, $rootScope, $state, $uibModal, $uibModalInstance, ModalUtilsSrv, CustomFieldsCacheSrv, CaseResolutionStatus, Significance, AlertingSrv, NotificationSrv, UiSettingsSrv, clipboard, event, templates, isAdmin, readonly) {
             var self = this;
             var eventId = event.id;
 
@@ -28,6 +28,7 @@
             self.customFieldsCache = CustomFieldsCacheSrv;
 
             self.hideEmptyCaseButton = UiSettingsSrv.hideEmptyCaseButton();
+            self.inferiorTagNames = UiSettingsSrv.inferiorTags().map(tag => tag.text);
 
             var getTemplateCustomFields = function(customFields) {
                 var result = [];
@@ -232,22 +233,32 @@
             };
 
             self.initSimilarCasesFilter = function(data) {
-                var stats = {
-                    'Open': 0
-                };
-
+                var stats = {};
+                
                 // Init the stats object
+                _.each(_.keys(Significance), function(key) {
+                    stats[key] = 0;
+                });
+                stats['Open'] = 0;
                 _.each(_.without(_.keys(CaseResolutionStatus), 'Duplicated'), function(key) {
                     stats[key] = 0;
                 });
 
                 _.each(data, function(item) {
+                    item.significance = (_.intersection(item.tags, self.inferiorTagNames).length > 0) ? Significance.Inferior : Significance.Superior;
+                    stats[item.significance] = stats[item.significance] + 1;
                     if(item.status === 'Open') {
                         stats[item.status] = stats[item.status] + 1;
                     } else {
                         stats[item.resolutionStatus] = stats[item.resolutionStatus] + 1;
                     }
                 });
+
+                if ((stats[Significance.Superior] === 0) || (stats[Significance.Inferior] === 0)) {
+                    _.each(_.keys(Significance), function(key) { 
+                        delete stats[key]; 
+                    });
+                }
 
                 var result = [];
                 _.each(_.keys(stats), function(key) {
@@ -264,6 +275,10 @@
                 self.currentSimilarFilter = filter;
                 if(filter === '') {
                     self.similarityFilters = {};
+                } else if(_.includes(['Superior', 'Inferior'], filter)) {
+                    self.similarityFilters = {
+                        significance: filter
+                    };
                 } else if(filter === 'Open') {
                     self.similarityFilters = {
                         status: filter

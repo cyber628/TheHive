@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('theHiveControllers').controller('AdminUiSettingsCtrl', function($scope, $q, NotificationSrv, UiSettingsSrv, uiConfig) {
+    angular.module('theHiveControllers').controller('AdminUiSettingsCtrl', function($scope, $q, NotificationSrv, UiSettingsSrv, TagSrv, uiConfig) {
             var self = this;
 
             self.isDirtySetting = function(key, newValue) {
@@ -54,7 +54,7 @@
 
                     self.configs = {};
                     self.settingsKeys.forEach(function(key) {
-                        self.configs[key] = (configs[key] || {}).value;
+                        self.configs[key] = _.clone((configs[key] || {}).value);
                     });
 
                     if(notifyRoot) {
@@ -64,6 +64,9 @@
             };
 
             self.loadSettings(uiConfig);
-
+            
+            self.getTags = function(query) {
+                return TagSrv.fromCases(query);
+            };
         });
 })();
