@@ -33,5 +33,9 @@
                 White: 0
             },
             values: ['White', 'Green', 'Amber', 'Red']
+        })
+        .value('Significance', {
+            Superior: 'Superior',
+            Inferior: 'Inferior'
         });
 })();

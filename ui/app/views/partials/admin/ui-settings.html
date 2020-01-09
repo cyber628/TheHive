@@ -12,9 +12,18 @@
                         <div class="col-md-9">
                             <div class="checkbox">
                                 <label>
-                                  <input name="hideEmptyCaseButton" type="checkbox" ng-model="$vm.configs.hideEmptyCaseButton"> Check this to disallow creating empty cases
+                                    <input name="hideEmptyCaseButton" type="checkbox" ng-model="$vm.configs.hideEmptyCaseButton"> Check this to disallow creating empty cases
                                 </label>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><em>Inferior</em> Tags</label>
+                        <div class="col-md-9">
+                            <tags-input name="tagsInput" ng-model="$vm.configs.inferiorTags" class="ti-input-sm" placeholder="Add tags" replace-spaces-with-dashes="false" min-length="2">
+                                <auto-complete min-length="1" debounceDelay="400" source="$vm.getTags($query)"></auto-complete>
+                            </tags-input>
                         </div>
                     </div>
 
